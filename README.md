@@ -1,6 +1,6 @@
 # generate enumeration and statistics 
 
-입역 data 기반으로 
+입력 data 기반으로 
 
 enum package를 만든다. 
 
@@ -14,7 +14,9 @@ typename : 만들 enum의 type
 
 basedir : 만들어질 package들일 속할 폴더 
 
-packagename : 만들어질 패키지이름(==폴더이름) 동시에 읽어 들일 data 파일 이름, packagename.enum 파일을 basedir에서 읽어 들인다. 
+packagename : 만들어질 패키지이름(==폴더이름) 동시에 읽어 들일 data 파일 이름, 
+    
+    packagename.enum 파일을 basedir에서 읽어 들인다. 
 
 genstats : 통계 패키지를 만들지 여부 bool , 기본은 false
 
