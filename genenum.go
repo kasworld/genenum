@@ -175,18 +175,27 @@ func buildStatsCode(pkgname string, typename string) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	fmt.Fprintln(&buf, makeGenComment())
 	fmt.Fprintf(&buf, `
-		package %[1]s_stats
-		import (
-			"fmt"
-			"html/template"
-			"net/http"
-		)
+	package %[1]s_stats
+	import (
+		"bytes"
+		"fmt"
+		"html/template"
+		"net/http"
+	)
 	`, pkgname, typename)
 
 	fmt.Fprintf(&buf, `
 	type %[2]sStat [%[1]s.%[2]s_Count]int
 	func (es *%[2]sStat) String() string {
-		return fmt.Sprintf("%[2]sStat[]")
+		var buf bytes.Buffer
+		fmt.Fprintf(&buf, "%[1]s[")
+		for i, v := range es {
+			fmt.Fprintf(&buf,
+				"%%v:%%v ",
+				%[1]s.%[2]s(i), v)
+		}
+		buf.WriteString("]")
+		return buf.String()
 	}
 	func (es *%[2]sStat) Inc(act %[1]s.%[2]s) {
 		es[act]++
