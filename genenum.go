@@ -188,7 +188,7 @@ func buildStatsCode(pkgname string, typename string) (*bytes.Buffer, error) {
 	type %[2]sStat [%[1]s.%[2]s_Count]int
 	func (es *%[2]sStat) String() string {
 		var buf bytes.Buffer
-		fmt.Fprintf(&buf, "%[1]s[")
+		fmt.Fprintf(&buf, "%[2]sStats[")
 		for i, v := range es {
 			fmt.Fprintf(&buf,
 				"%%v:%%v ",
