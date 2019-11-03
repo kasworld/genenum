@@ -79,7 +79,7 @@ var (
 	typename    = flag.String("typename", "", "enum typename")
 	basedir     = flag.String("basedir", "", "base directory of enumdata, gen code ")
 	packagename = flag.String("packagename", "", "load basedir/packagename.enum")
-	genstats    = flag.Bool("genstats", false, "generate stats package")
+	statstype   = flag.String("statstype", "", "stats element type, empty not generate")
 )
 
 func main() {
@@ -107,9 +107,9 @@ func main() {
 	buf, err := buildEnumCode(*packagename, *typename, enumdata)
 	saveTo(buf, err, path.Join(*basedir, *packagename, *packagename+"_gen.go"))
 
-	if *genstats {
+	if *statstype != "" {
 		os.MkdirAll(path.Join(*basedir, *packagename+"_stats"), os.ModePerm)
-		buf, err = buildStatsCode(*packagename, *typename)
+		buf, err = buildStatsCode(*packagename, *typename, *statstype)
 		saveTo(buf, err, path.Join(*basedir, *packagename+"_stats", *packagename+"_stats_gen.go"))
 	}
 }
@@ -171,7 +171,7 @@ func buildEnumCode(
 	return &buf, nil
 }
 
-func buildStatsCode(pkgname string, typename string) (*bytes.Buffer, error) {
+func buildStatsCode(pkgname string, typename string, statstype string) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	fmt.Fprintln(&buf, makeGenComment())
 	fmt.Fprintf(&buf, `
@@ -185,7 +185,7 @@ func buildStatsCode(pkgname string, typename string) (*bytes.Buffer, error) {
 	`, pkgname, typename)
 
 	fmt.Fprintf(&buf, `
-	type %[2]sStat [%[1]s.%[2]s_Count]int
+	type %[2]sStat [%[1]s.%[2]s_Count]%[4]s
 	func (es *%[2]sStat) String() string {
 		var buf bytes.Buffer
 		fmt.Fprintf(&buf, "%[2]sStats[")
@@ -200,15 +200,15 @@ func buildStatsCode(pkgname string, typename string) (*bytes.Buffer, error) {
 	func (es *%[2]sStat) Inc(e %[1]s.%[2]s) {
 		es[e]+=1
 	}
-	func (es *%[2]sStat) Add(e %[1]s.%[2]s, v int) {
+	func (es *%[2]sStat) Add(e %[1]s.%[2]s, v %[4]s) {
 		es[e]+=v
 	}
-	func (es *%[2]sStat) SetIfGt(e %[1]s.%[2]s, v int) {
+	func (es *%[2]sStat) SetIfGt(e %[1]s.%[2]s, v %[4]s) {
 		if es[e] < v {
 			es[e]=v
 		}
 	}
-	func (es *%[2]sStat) Get(e %[1]s.%[2]s) int {
+	func (es *%[2]sStat) Get(e %[1]s.%[2]s) %[4]s {
 		return es[e]
 	}
 	
@@ -259,7 +259,7 @@ func buildStatsCode(pkgname string, typename string) (*bytes.Buffer, error) {
 		</tr>
 		%[3]c
 	)
-	`, pkgname, typename, '`')
+	`, pkgname, typename, '`', statstype)
 
 	return &buf, nil
 }

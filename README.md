@@ -18,7 +18,7 @@ packagename : 만들어질 패키지이름(==폴더이름) 동시에 읽어 들�
     
     packagename.enum 파일을 basedir에서 읽어 들인다. 
 
-genstats : 통계 패키지를 만들지 여부 bool , 기본은 false
+statstype : 통계 패키지를 만들때 사용할 element 타입, 없으면 통계 패키지를 만들지 않는다. 
 
 데이터 파일 형태 
 
