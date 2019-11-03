@@ -216,7 +216,7 @@ func buildStatsCode(pkgname string, typename string, statstype string) (*bytes.B
 		tplIndex, err := template.New("index").Funcs(IndexFn).Parse(%[3]c
 		<html>
 		<head>
-		<title>%[2]s stat Info</title>
+		<title>%[2]s statistics</title>
 		</head>
 		<body>
 		<table border=1 style="border-collapse:collapse;">%[3]c +
