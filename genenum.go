@@ -197,14 +197,19 @@ func buildStatsCode(pkgname string, typename string) (*bytes.Buffer, error) {
 		buf.WriteString("]")
 		return buf.String()
 	}
-	func (es *%[2]sStat) Inc(act %[1]s.%[2]s) {
-		es[act]++
+	func (es *%[2]sStat) Inc(e %[1]s.%[2]s) {
+		es[e]+=1
 	}
-	func (es *%[2]sStat) Add(act %[1]s.%[2]s, v int) {
-		es[act]+=v
+	func (es *%[2]sStat) Add(e %[1]s.%[2]s, v int) {
+		es[e]+=v
 	}
-	func (es *%[2]sStat) Get(act %[1]s.%[2]s) int {
-		return es[act]
+	func (es *%[2]sStat) SetIfGt(e %[1]s.%[2]s, v int) {
+		if es[e] < v {
+			es[e]=v
+		}
+	}
+	func (es *%[2]sStat) Get(e %[1]s.%[2]s) int {
+		return es[e]
 	}
 	
 	func (es *%[2]sStat) ToWeb(w http.ResponseWriter, r *http.Request) error {
