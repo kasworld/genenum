@@ -137,7 +137,7 @@ func buildEnumCode(
 	)`, typename)
 
 	fmt.Fprintf(&buf, `
-	var _%[1]s2string = map[%[1]s]string{
+	var _%[1]s2string = [%[1]s_Count]string{
 	`, typename)
 
 	for _, v := range enumdata {
@@ -146,8 +146,8 @@ func buildEnumCode(
 	fmt.Fprintf(&buf, "\n}\n")
 	fmt.Fprintf(&buf, `
 	func (e %[1]s) String() string {
-		if s, exist := _%[1]s2string[e]; exist {
-			return s
+		if e >=0 && e < %[1]s(%[1]s_Count) {
+			return _%[1]s2string[e]
 		}
 		return fmt.Sprintf("%[1]s%%d", uint8(e))
 	}
