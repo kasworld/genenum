@@ -20,6 +20,8 @@ packagename : 만들어질 패키지이름(==폴더이름) 동시에 읽어 들�
 
 statstype : 통계 패키지를 만들때 사용할 element 타입, 없으면 통계 패키지를 만들지 않는다. 
 
+verbose : goimports 를 해야할 파일 목록을 찍어 줍니다. 
+
 데이터 파일 형태 
 
     한줄에 한개의 enum을 정의 
@@ -29,8 +31,6 @@ statstype : 통계 패키지를 만들때 사용할 element 타입, 없으면 �
 
 생성이 끝난 코드들은 import code가 제대로 되어 있지 않으니 
 goimports 등으로 정리 해주어야 합니다. 
-
-실행하면 goimports 를 해야할 파일 목록을 찍어 줍니다. 
 
     example.sh를 실행한 결과 
     goimports -w achievetype/achievetype_gen.go

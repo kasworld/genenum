@@ -56,7 +56,7 @@ func loadEnumWithComment(filename string) ([][]string, error) {
 }
 
 // saveTo save go source with format, saved file may need goimport
-func saveTo(outdata *bytes.Buffer, buferr error, outfilename string) error {
+func saveTo(outdata *bytes.Buffer, buferr error, outfilename string, verbose bool) error {
 	if buferr != nil {
 		fmt.Printf("fail %v %v\n", outfilename, buferr)
 		return buferr
@@ -71,7 +71,9 @@ func saveTo(outdata *bytes.Buffer, buferr error, outfilename string) error {
 		fmt.Printf("fail %v %v\n", outfilename, werr)
 		return werr
 	}
-	fmt.Printf("goimports -w %v\n", outfilename)
+	if verbose {
+		fmt.Printf("goimports -w %v\n", outfilename)
+	}
 	return nil
 }
 
@@ -80,6 +82,7 @@ var (
 	basedir     = flag.String("basedir", "", "base directory of enumdata, gen code ")
 	packagename = flag.String("packagename", "", "load basedir/packagename.enum")
 	statstype   = flag.String("statstype", "", "stats element type, empty not generate")
+	verbose     = flag.Bool("verbose", false, "show goimports file")
 )
 
 func main() {
@@ -105,12 +108,18 @@ func main() {
 	}
 
 	buf, err := buildEnumCode(*packagename, *typename, enumdata)
-	saveTo(buf, err, path.Join(*basedir, *packagename, *packagename+"_gen.go"))
+	saveTo(buf, err,
+		path.Join(*basedir, *packagename, *packagename+"_gen.go"),
+		*verbose,
+	)
 
 	if *statstype != "" {
 		os.MkdirAll(path.Join(*basedir, *packagename+"_stats"), os.ModePerm)
 		buf, err = buildStatsCode(*packagename, *typename, *statstype)
-		saveTo(buf, err, path.Join(*basedir, *packagename+"_stats", *packagename+"_stats_gen.go"))
+		saveTo(buf, err,
+			path.Join(*basedir, *packagename+"_stats", *packagename+"_stats_gen.go"),
+			*verbose,
+		)
 	}
 }
 
