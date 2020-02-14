@@ -78,47 +78,56 @@ func saveTo(outdata *bytes.Buffer, buferr error, outfilename string, verbose boo
 }
 
 var (
-	typename    = flag.String("typename", "", "enum typename")
-	basedir     = flag.String("basedir", "", "base directory of enumdata, gen code ")
-	packagename = flag.String("packagename", "", "load basedir/packagename.enum")
-	statstype   = flag.String("statstype", "", "stats element type, empty not generate")
-	verbose     = flag.Bool("verbose", false, "show goimports file")
+	g_typename    = flag.String("typename", "", "enum typename")
+	g_basedir     = flag.String("basedir", "", "base directory of enumdata, gen code ")
+	g_packagename = flag.String("packagename", "", "load basedir/packagename.enum")
+	g_flagtype    = flag.String("flagtype", "", "make flag code, empty not generate")
+	g_statstype   = flag.String("statstype", "", "stats element type, empty not generate")
+	g_verbose     = flag.Bool("verbose", false, "show goimports file")
 )
 
 func main() {
 	flag.Parse()
 
-	if *typename == "" {
+	if *g_typename == "" {
 		fmt.Println("typename not set")
 	}
-	if *packagename == "" {
+	if *g_packagename == "" {
 		fmt.Println("packagename not set")
 	}
-	if *basedir == "" {
+	if *g_basedir == "" {
 		fmt.Println("base dir not set")
 	}
 
-	os.MkdirAll(path.Join(*basedir, *packagename), os.ModePerm)
+	os.MkdirAll(path.Join(*g_basedir, *g_packagename), os.ModePerm)
 
-	enumdatafile := path.Join(*basedir, *packagename+".enum")
+	enumdatafile := path.Join(*g_basedir, *g_packagename+".enum")
 	enumdata, err := loadEnumWithComment(enumdatafile)
 	if err != nil {
 		fmt.Printf("fail to load %v %v\n", enumdatafile, err)
 		return
 	}
 
-	buf, err := buildEnumCode(*packagename, *typename, enumdata)
+	buf, err := buildEnumCode(*g_packagename, *g_typename, enumdata)
 	saveTo(buf, err,
-		path.Join(*basedir, *packagename, *packagename+"_gen.go"),
-		*verbose,
+		path.Join(*g_basedir, *g_packagename, *g_packagename+"_gen.go"),
+		*g_verbose,
 	)
 
-	if *statstype != "" {
-		os.MkdirAll(path.Join(*basedir, *packagename+"_stats"), os.ModePerm)
-		buf, err = buildStatsCode(*packagename, *typename, *statstype)
+	if *g_flagtype != "" {
+		buf, err = buildFlagCode(*g_packagename, *g_typename, enumdata, *g_flagtype)
 		saveTo(buf, err,
-			path.Join(*basedir, *packagename+"_stats", *packagename+"_stats_gen.go"),
-			*verbose,
+			path.Join(*g_basedir, *g_packagename, *g_packagename+"_flag_gen.go"),
+			*g_verbose,
+		)
+	}
+
+	if *g_statstype != "" {
+		os.MkdirAll(path.Join(*g_basedir, *g_packagename+"_stats"), os.ModePerm)
+		buf, err = buildStatsCode(*g_packagename, *g_typename, *g_statstype)
+		saveTo(buf, err,
+			path.Join(*g_basedir, *g_packagename+"_stats", *g_packagename+"_stats_gen.go"),
+			*g_verbose,
 		)
 	}
 }
@@ -177,6 +186,25 @@ func buildEnumCode(
 	}
 	`, typename)
 
+	return &buf, nil
+}
+
+func buildFlagCode(
+	pkgname string, typename string,
+	enumdata [][]string, flagtype string) (*bytes.Buffer, error) {
+
+	var buf bytes.Buffer
+	fmt.Fprintln(&buf, makeGenComment())
+	fmt.Fprintf(&buf, `
+		package %[1]s
+		type Flag_%[2]s %[3]s
+	`, pkgname, typename, flagtype)
+
+	fmt.Fprintf(&buf, "const (\n")
+	for _, v := range enumdata {
+		fmt.Fprintf(&buf, "Flag_%v = Flag_%v(1<<%v)  // %v \n", v[0], typename, v[0], v[1])
+	}
+	fmt.Fprintf(&buf, ")\n")
 	return &buf, nil
 }
 
