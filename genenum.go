@@ -218,19 +218,19 @@ func buildFlagCode(
 	}
 	
 	func (bt %[1]sFlag) TestBy%[1]s(n %[2]s.%[1]s) bool {
-		return %[1]sFlag(bt)&(1<<n) != 0
+		return bt&%[1]sFlag(1<<n) != 0
 	}
 	
 	func (bt *%[1]sFlag) SetBy%[1]sFlag(v %[1]sFlag) {
-		*bt |= %[1]sFlag(v)
+		*bt |= v
 	}
 	
 	func (bt *%[1]sFlag) ClearBy%[1]sFlag(v %[1]sFlag) {
-		*bt = *bt &^ %[1]sFlag(v)
+		*bt = *bt &^ v
 	}
 	
 	func (bt %[1]sFlag) TestBy%[1]sFlag(v %[1]sFlag) bool {
-		return %[1]sFlag(bt)&(v) != 0
+		return bt&v != 0
 	}
 	`, typename, pkgname)
 
