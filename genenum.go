@@ -46,6 +46,7 @@ func loadEnumWithComment(filename string) ([][]string, error) {
 			if len(s2) == 1 {
 				s2 = append(s2, "")
 			}
+			s2[1] = strings.TrimSpace(s2[1])
 			rtn = append(rtn, s2)
 		}
 		if err != nil { // eof
