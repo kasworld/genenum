@@ -115,9 +115,10 @@ func main() {
 	)
 
 	if *g_flagtype != "" {
+		os.MkdirAll(path.Join(*g_basedir, *g_packagename+"_flag"), os.ModePerm)
 		buf, err = buildFlagCode(*g_packagename, *g_typename, enumdata, *g_flagtype)
 		saveTo(buf, err,
-			path.Join(*g_basedir, *g_packagename, *g_packagename+"_flag_gen.go"),
+			path.Join(*g_basedir, *g_packagename+"_flag", *g_packagename+"_flag_gen.go"),
 			*g_verbose,
 		)
 	}
@@ -196,15 +197,43 @@ func buildFlagCode(
 	var buf bytes.Buffer
 	fmt.Fprintln(&buf, makeGenComment())
 	fmt.Fprintf(&buf, `
-		package %[1]s
-		type Flag_%[2]s %[3]s
+		package %[1]s_flag
+		type %[2]sFlag %[3]s
 	`, pkgname, typename, flagtype)
 
 	fmt.Fprintf(&buf, "const (\n")
 	for _, v := range enumdata {
-		fmt.Fprintf(&buf, "Flag_%v = Flag_%v(1<<%v)  // %v \n", v[0], typename, v[0], v[1])
+		fmt.Fprintf(&buf, "%[3]sFlag = %[2]sFlag(1<<%[1]s.%[3]s)  // %[4]s \n",
+			pkgname, typename, v[0], v[1])
 	}
 	fmt.Fprintf(&buf, ")\n")
+
+	fmt.Fprintf(&buf, `
+	func (bt *%[1]sFlag) SetBy%[1]s(n %[2]s.%[1]s) {
+		*bt |= %[1]sFlag(1 << n)
+	}
+	
+	func (bt *%[1]sFlag) ClearBy%[1]s(n %[2]s.%[1]s) {
+		*bt = *bt &^ %[1]sFlag(1<<n)
+	}
+	
+	func (bt %[1]sFlag) TestBy%[1]s(n %[2]s.%[1]s) bool {
+		return %[1]sFlag(bt)&(1<<n) != 0
+	}
+	
+	func (bt *%[1]sFlag) SetBy%[1]sFlag(v %[1]sFlag) {
+		*bt |= %[1]sFlag(v)
+	}
+	
+	func (bt *%[1]sFlag) ClearBy%[1]sFlag(v %[1]sFlag) {
+		*bt = *bt &^ %[1]sFlag(v)
+	}
+	
+	func (bt %[1]sFlag) TestBy%[1]sFlag(v %[1]sFlag) bool {
+		return %[1]sFlag(bt)&(v) != 0
+	}
+	`, typename, pkgname)
+
 	return &buf, nil
 }
 
