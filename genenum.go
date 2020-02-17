@@ -264,6 +264,9 @@ func buildStatsCode(pkgname string, typename string, statstype string) (*bytes.B
 		buf.WriteString("]")
 		return buf.String()
 	}
+	func (es *%[2]sStat) Dec(e %[1]s.%[2]s) {
+		es[e]-=1
+	}
 	func (es *%[2]sStat) Inc(e %[1]s.%[2]s) {
 		es[e]+=1
 	}
