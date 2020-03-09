@@ -157,20 +157,28 @@ func buildEnumCode(
 	)`, typename)
 
 	fmt.Fprintf(&buf, `
-	var _%[1]s2string = [%[1]s_Count]string{
+	var _%[1]s2string = [%[1]s_Count][2]string{
 	`, typename)
 
 	for _, v := range enumdata {
-		fmt.Fprintf(&buf, "%v : \"%v\", \n", v[0], v[0])
+		fmt.Fprintf(&buf, "%v : {\"%v\",\"%v\" },\n", v[0], v[0], v[1])
 	}
 	fmt.Fprintf(&buf, "\n}\n")
 	fmt.Fprintf(&buf, `
 	func (e %[1]s) String() string {
 		if e >=0 && e < %[1]s(%[1]s_Count) {
-			return _%[1]s2string[e]
+			return _%[1]s2string[e][0]
 		}
 		return fmt.Sprintf("%[1]s%%d", uint8(e))
 	}
+
+	func (e %[1]s) CommentString() string {
+		if e >=0 && e < %[1]s(%[1]s_Count) {
+			return _%[1]s2string[e][1]
+		}
+		return ""
+	}
+
 	`, typename)
 
 	fmt.Fprintf(&buf, `
