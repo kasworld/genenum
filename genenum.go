@@ -83,7 +83,7 @@ var (
 	g_basedir     = flag.String("basedir", "", "base directory of enumdata, gen code ")
 	g_packagename = flag.String("packagename", "", "load basedir/packagename.enum")
 	g_flagtype    = flag.String("flagtype", "", "make flag code, empty not generate")
-	g_statstype   = flag.String("statstype", "", "stats element type, empty not generate")
+	g_vectortype  = flag.String("vectortype", "", "vector element type, empty not generate")
 	g_verbose     = flag.Bool("verbose", false, "show goimports file")
 )
 
@@ -124,11 +124,11 @@ func main() {
 		)
 	}
 
-	if *g_statstype != "" {
-		os.MkdirAll(path.Join(*g_basedir, *g_packagename+"_stats"), os.ModePerm)
-		buf, err = buildStatsCode(*g_packagename, *g_typename, *g_statstype)
+	if *g_vectortype != "" {
+		os.MkdirAll(path.Join(*g_basedir, *g_packagename+"_vector"), os.ModePerm)
+		buf, err = buildVectorCode(*g_packagename, *g_typename, *g_vectortype)
 		saveTo(buf, err,
-			path.Join(*g_basedir, *g_packagename+"_stats", *g_packagename+"_stats_gen.go"),
+			path.Join(*g_basedir, *g_packagename+"_vector", *g_packagename+"_vector_gen.go"),
 			*g_verbose,
 		)
 	}
@@ -246,11 +246,11 @@ func buildFlagCode(
 	return &buf, nil
 }
 
-func buildStatsCode(pkgname string, typename string, statstype string) (*bytes.Buffer, error) {
+func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	fmt.Fprintln(&buf, makeGenComment())
 	fmt.Fprintf(&buf, `
-	package %[1]s_stats
+	package %[1]s_vector
 	import (
 		"bytes"
 		"fmt"
@@ -263,7 +263,7 @@ func buildStatsCode(pkgname string, typename string, statstype string) (*bytes.B
 	type %[2]sStat [%[1]s.%[2]s_Count]%[4]s
 	func (es *%[2]sStat) String() string {
 		var buf bytes.Buffer
-		fmt.Fprintf(&buf, "%[2]sStats[")
+		fmt.Fprintf(&buf, "%[2]sVector[")
 		for i, v := range es {
 			fmt.Fprintf(&buf,
 				"%%v:%%v ",
@@ -367,7 +367,7 @@ func buildStatsCode(pkgname string, typename string, statstype string) (*bytes.B
 		</tr>
 		%[3]c
 	)
-	`, pkgname, typename, '`', statstype)
+	`, pkgname, typename, '`', vectortype)
 
 	return &buf, nil
 }

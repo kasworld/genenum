@@ -1,4 +1,4 @@
-# generate enumeration and statistics 
+# generate enumeration and vector(statistics)
 
 입력 data 기반으로 
 
@@ -6,7 +6,7 @@ enum 패키지를 만든다.
 
 선택적으로 bit flag 패키지를 만들 수 있다.  
 
-선택적으로 통계 패키지 를 만들 수도 있다. 
+선택적으로 vector(통계) 패키지 를 만들 수도 있다. 
 
 ## 사용법 
 
@@ -20,7 +20,7 @@ packagename : 만들어질 패키지이름(==폴더이름) 동시에 읽어 들�
     
     packagename.enum 파일을 basedir에서 읽어 들인다. 
 
-statstype : 통계 패키지를 만들때 사용할 element 타입, 없으면 통계 패키지를 만들지 않는다. 
+vectortype : 벡터 패키지를 만들때 사용할 element 타입, 없으면 벡터 패키지를 만들지 않는다. 
 
 flagtype : bit flag 패키지를 만들때 사용할 타입 enum 갯수보다 큰 bit len을 가져야 한다. 
 
@@ -41,4 +41,4 @@ goimports 등으로 정리 해주어야 합니다.
     example.sh를 실행한 결과 
     goimports -w achievetype/achievetype_gen.go
     goimports -w achievetype_flag/achievetype_flag_gen.go
-    goimports -w achievetype_stats/achievetype_stats_gen.go
+    goimports -w achievetype_vector/achievetype_vector_gen.go
