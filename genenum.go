@@ -310,7 +310,7 @@ func buildStatsCode(pkgname string, typename string, statstype string) (*bytes.B
 		return rtn
 	}
 	
-	// VectorSub add element to element
+	// VectorSub sub element to element
 	func (es %[2]sStat) VectorSub(arg %[2]sStat) %[2]sStat {
 		var rtn %[2]sStat
 		for i := 0; i < %[1]s.%[2]s_Count; i++ {
