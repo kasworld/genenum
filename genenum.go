@@ -260,8 +260,8 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 	`, pkgname, typename)
 
 	fmt.Fprintf(&buf, `
-	type %[2]sStat [%[1]s.%[2]s_Count]%[4]s
-	func (es *%[2]sStat) String() string {
+	type %[2]sVector [%[1]s.%[2]s_Count]%[4]s
+	func (es *%[2]sVector) String() string {
 		var buf bytes.Buffer
 		fmt.Fprintf(&buf, "%[2]sVector[")
 		for i, v := range es {
@@ -272,27 +272,27 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 		buf.WriteString("]")
 		return buf.String()
 	}
-	func (es *%[2]sStat) Dec(e %[1]s.%[2]s) {
+	func (es *%[2]sVector) Dec(e %[1]s.%[2]s) {
 		es[e]-=1
 	}
-	func (es *%[2]sStat) Inc(e %[1]s.%[2]s) {
+	func (es *%[2]sVector) Inc(e %[1]s.%[2]s) {
 		es[e]+=1
 	}
-	func (es *%[2]sStat) Add(e %[1]s.%[2]s, v %[4]s) {
+	func (es *%[2]sVector) Add(e %[1]s.%[2]s, v %[4]s) {
 		es[e]+=v
 	}
-	func (es *%[2]sStat) SetIfGt(e %[1]s.%[2]s, v %[4]s) {
+	func (es *%[2]sVector) SetIfGt(e %[1]s.%[2]s, v %[4]s) {
 		if es[e] < v {
 			es[e]=v
 		}
 	}
-	func (es *%[2]sStat) Get(e %[1]s.%[2]s) %[4]s {
+	func (es *%[2]sVector) Get(e %[1]s.%[2]s) %[4]s {
 		return es[e]
 	}
 
 	// Iter return true if iter stop, return false if iter all
 	// fn return true to stop iter
-	func (es %[2]sStat) Iter(fn func(i int, v %[4]s) bool) bool {
+	func (es %[2]sVector) Iter(fn func(i int, v %[4]s) bool) bool {
 		for i := 0; i < %[1]s.%[2]s_Count; i++ {
 			if fn(i, es[i]) {
 				return true
@@ -302,8 +302,8 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 	}
 
 	// VectorAdd add element to element
-	func (es %[2]sStat) VectorAdd(arg %[2]sStat) %[2]sStat {
-		var rtn %[2]sStat
+	func (es %[2]sVector) VectorAdd(arg %[2]sVector) %[2]sVector {
+		var rtn %[2]sVector
 		for i := 0; i < %[1]s.%[2]s_Count; i++ {
 			rtn[i] = es[i] + arg[i]
 		}
@@ -311,8 +311,8 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 	}
 	
 	// VectorSub sub element to element
-	func (es %[2]sStat) VectorSub(arg %[2]sStat) %[2]sStat {
-		var rtn %[2]sStat
+	func (es %[2]sVector) VectorSub(arg %[2]sVector) %[2]sVector {
+		var rtn %[2]sVector
 		for i := 0; i < %[1]s.%[2]s_Count; i++ {
 			rtn[i] = es[i] - arg[i]
 		}
@@ -320,7 +320,7 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 	}
 		
 	
-	func (es *%[2]sStat) ToWeb(w http.ResponseWriter, r *http.Request) error {
+	func (es *%[2]sVector) ToWeb(w http.ResponseWriter, r *http.Request) error {
 		tplIndex, err := template.New("index").Funcs(IndexFn).Parse(%[3]c
 		<html>
 		<head>
