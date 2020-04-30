@@ -289,6 +289,36 @@ func buildStatsCode(pkgname string, typename string, statstype string) (*bytes.B
 	func (es *%[2]sStat) Get(e %[1]s.%[2]s) %[4]s {
 		return es[e]
 	}
+
+	// Iter return true if iter stop, return false if iter all
+	// fn return true to stop iter
+	func (es %[2]sStat) Iter(fn func(i int, v %[4]s) bool) bool {
+		for i := 0; i < %[1]s.%[2]s_Count; i++ {
+			if fn(i, es[i]) {
+				return true
+			}
+		}
+		return false
+	}
+
+	// VectorAdd add element to element
+	func (es %[2]sStat) VectorAdd(arg %[2]sStat) %[2]sStat {
+		var rtn %[2]sStat
+		for i := 0; i < %[1]s.%[2]s_Count; i++ {
+			rtn[i] = es[i] + arg[i]
+		}
+		return rtn
+	}
+	
+	// VectorSub add element to element
+	func (es %[2]sStat) VectorSub(arg %[2]sStat) %[2]sStat {
+		var rtn %[2]sStat
+		for i := 0; i < %[1]s.%[2]s_Count; i++ {
+			rtn[i] = es[i] - arg[i]
+		}
+		return rtn
+	}
+		
 	
 	func (es *%[2]sStat) ToWeb(w http.ResponseWriter, r *http.Request) error {
 		tplIndex, err := template.New("index").Funcs(IndexFn).Parse(%[3]c
