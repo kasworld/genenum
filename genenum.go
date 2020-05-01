@@ -292,9 +292,9 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 
 	// Iter return true if iter stop, return false if iter all
 	// fn return true to stop iter
-	func (es %[2]sVector) Iter(fn func(i int, v %[4]s) bool) bool {
-		for i := 0; i < %[1]s.%[2]s_Count; i++ {
-			if fn(i, es[i]) {
+	func (es %[2]sVector) Iter(fn func(i %[1]s.%[2]s, v %[4]s) bool) bool {
+		for i, v := range es {
+			if fn(%[1]s.%[2]s(i), v) {
 				return true
 			}
 		}
@@ -304,8 +304,8 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 	// VectorAdd add element to element
 	func (es %[2]sVector) VectorAdd(arg %[2]sVector) %[2]sVector {
 		var rtn %[2]sVector
-		for i := 0; i < %[1]s.%[2]s_Count; i++ {
-			rtn[i] = es[i] + arg[i]
+		for i, v := range es {
+			rtn[i] = v + arg[i]
 		}
 		return rtn
 	}
@@ -313,8 +313,8 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 	// VectorSub sub element to element
 	func (es %[2]sVector) VectorSub(arg %[2]sVector) %[2]sVector {
 		var rtn %[2]sVector
-		for i := 0; i < %[1]s.%[2]s_Count; i++ {
-			rtn[i] = es[i] - arg[i]
+		for i, v := range es {
+			rtn[i] = v - arg[i]
 		}
 		return rtn
 	}
