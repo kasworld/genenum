@@ -261,7 +261,7 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 
 	fmt.Fprintf(&buf, `
 	type %[2]sVector [%[1]s.%[2]s_Count]%[4]s
-	func (es *%[2]sVector) String() string {
+	func (es %[2]sVector) String() string {
 		var buf bytes.Buffer
 		fmt.Fprintf(&buf, "%[2]sVector[")
 		for i, v := range es {
@@ -286,7 +286,7 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 			es[e]=v
 		}
 	}
-	func (es *%[2]sVector) Get(e %[1]s.%[2]s) %[4]s {
+	func (es %[2]sVector) Get(e %[1]s.%[2]s) %[4]s {
 		return es[e]
 	}
 
