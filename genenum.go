@@ -48,6 +48,12 @@ func loadEnumWithComment(filename string) ([][]string, error) {
 			}
 			s2[1] = strings.TrimSpace(s2[1])
 			rtn = append(rtn, s2)
+		} else {
+			if len(line) != 0 {
+				rtn = append(rtn, []string{"", line[1:]}) // full line comment
+			} else {
+				rtn = append(rtn, []string{"", ""}) // empty line
+			}
 		}
 		if err != nil { // eof
 			break
@@ -145,11 +151,17 @@ func buildEnumCode(
 	`, pkgname, typename)
 
 	fmt.Fprintf(&buf, "const (\n")
-	for i, v := range enumdata {
-		if i == 0 {
-			fmt.Fprintf(&buf, "%v %v = iota // %v \n", v[0], typename, v[1])
-		} else {
-			fmt.Fprintf(&buf, "%v // %v\n", v[0], v[1])
+	addIota := false
+	for _, v := range enumdata {
+		if len(v[0]) != 0 {
+			if !addIota {
+				addIota = true
+				fmt.Fprintf(&buf, "%v %v = iota // %v \n", v[0], typename, v[1])
+			} else {
+				fmt.Fprintf(&buf, "%v // %v\n", v[0], v[1])
+			}
+		} else { // empty line, full line comment
+			fmt.Fprintf(&buf, "// %v\n", v[1])
 		}
 	}
 	fmt.Fprintf(&buf, `
@@ -161,7 +173,9 @@ func buildEnumCode(
 	`, typename)
 
 	for _, v := range enumdata {
-		fmt.Fprintf(&buf, "%v : {\"%v\",\"%v\" },\n", v[0], v[0], v[1])
+		if len(v[0]) != 0 {
+			fmt.Fprintf(&buf, "%v : {\"%v\",\"%v\" },\n", v[0], v[0], v[1])
+		}
 	}
 	fmt.Fprintf(&buf, "\n}\n")
 	fmt.Fprintf(&buf, `
@@ -186,7 +200,9 @@ func buildEnumCode(
 	`, typename)
 
 	for _, v := range enumdata {
-		fmt.Fprintf(&buf, "\"%v\" : %v, \n", v[0], v[0])
+		if len(v[0]) != 0 {
+			fmt.Fprintf(&buf, "\"%v\" : %v, \n", v[0], v[0])
+		}
 	}
 	fmt.Fprintf(&buf, "\n}\n")
 	fmt.Fprintf(&buf, `
@@ -212,8 +228,10 @@ func buildFlagCode(
 
 	fmt.Fprintf(&buf, "const (\n")
 	for _, v := range enumdata {
-		fmt.Fprintf(&buf, "%[3]sFlag = %[2]sFlag(1<<%[1]s.%[3]s)  // %[4]s \n",
-			pkgname, typename, v[0], v[1])
+		if len(v[0]) != 0 {
+			fmt.Fprintf(&buf, "%[3]sFlag = %[2]sFlag(1<<%[1]s.%[3]s)  // %[4]s \n",
+				pkgname, typename, v[0], v[1])
+		}
 	}
 	fmt.Fprintf(&buf, ")\n")
 

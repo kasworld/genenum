@@ -1,6 +1,9 @@
+# 이건 어떻게?
+
+# 빈칸 테스트 
 Admin test comment
-Kill 
-Death
+Kill  comment 2 
+Death 한글 주석 
 Turn
 Move
 EnterPortal
@@ -8,6 +11,8 @@ PickupPO more test comment
 EquipPO
 UnEquipPO
 UsePO
+
+
 DropPO
 ActTurnPit
 Attack
