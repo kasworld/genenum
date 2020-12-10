@@ -85,6 +85,7 @@ func saveTo(outdata *bytes.Buffer, buferr error, outfilename string, verbose boo
 }
 
 var (
+	g_typesize    = flag.String("typesize", "uint8", "enum typesize, uint8,uint16,uint32,uint64")
 	g_typename    = flag.String("typename", "", "enum typename")
 	g_basedir     = flag.String("basedir", "", "base directory of enumdata, gen code ")
 	g_packagename = flag.String("packagename", "", "load basedir/packagename.enum")
@@ -106,6 +107,13 @@ func main() {
 		fmt.Println("base dir not set")
 	}
 
+	switch *g_typesize {
+	default:
+		fmt.Println("invalid typesize, typesize must one of uint8,uint16,uint32,uint64")
+		fmt.Println("make default typesize uint8")
+		*g_typesize = "uint8"
+	case "uint8", "uint16", "uint32", "uint64":
+	}
 	os.MkdirAll(path.Join(*g_basedir, *g_packagename), os.ModePerm)
 
 	enumdatafile := path.Join(*g_basedir, *g_packagename+".enum")
@@ -115,7 +123,7 @@ func main() {
 		return
 	}
 
-	buf, err := buildEnumCode(*g_packagename, *g_typename, enumdata)
+	buf, err := buildEnumCode(*g_packagename, *g_typesize, *g_typename, enumdata)
 	saveTo(buf, err,
 		path.Join(*g_basedir, *g_packagename, *g_packagename+"_gen.go"),
 		*g_verbose,
@@ -141,14 +149,14 @@ func main() {
 }
 
 func buildEnumCode(
-	pkgname string, typename string, enumdata [][]string) (*bytes.Buffer, error) {
+	pkgname string, typesize string, typename string, enumdata [][]string) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	fmt.Fprintln(&buf, makeGenComment())
 	fmt.Fprintf(&buf, `
 		package %[1]s
 		import "fmt"
-		type %v uint8
-	`, pkgname, typename)
+		type %[2]s %[3]s
+	`, pkgname, typename, typesize)
 
 	fmt.Fprintf(&buf, "const (\n")
 	addIota := false
