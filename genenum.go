@@ -130,12 +130,16 @@ func main() {
 	)
 
 	if *g_flagtype != "" {
-		os.MkdirAll(path.Join(*g_basedir, *g_packagename+"_flag"), os.ModePerm)
-		buf, err = buildFlagCode(*g_packagename, *g_typename, enumdata, *g_flagtype)
-		saveTo(buf, err,
-			path.Join(*g_basedir, *g_packagename+"_flag", *g_packagename+"_flag_gen.go"),
-			*g_verbose,
-		)
+		if len(enumdata) > 64 {
+			fmt.Printf("enum count over 64, can not make %v_flag package\n", *g_packagename)
+		} else {
+			os.MkdirAll(path.Join(*g_basedir, *g_packagename+"_flag"), os.ModePerm)
+			buf, err = buildFlagCode(*g_packagename, *g_typename, enumdata, *g_flagtype)
+			saveTo(buf, err,
+				path.Join(*g_basedir, *g_packagename+"_flag", *g_packagename+"_flag_gen.go"),
+				*g_verbose,
+			)
+		}
 	}
 
 	if *g_vectortype != "" {
