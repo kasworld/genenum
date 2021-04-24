@@ -7,7 +7,7 @@ goimports -w achievetype_flag
 goimports -w achievetype_vector
 
 
-echo "***** too many enum for flag package test *****"
+echo "***** too many enum for flag package example *****"
 go run genenum.go -typename=BigEnumType -packagename=bigenumtype -basedir="." -flagtype=uint64 -vectortype=int -verbose
 
 goimports -w bigenumtype

@@ -248,6 +248,19 @@ func buildFlagCode(
 	fmt.Fprintf(&buf, ")\n")
 
 	fmt.Fprintf(&buf, `
+
+	func (cf %[1]sFlag) String() string {
+		var buf bytes.Buffer
+		fmt.Fprintf(&buf, "%[1]sFlag[")
+		for i := 0; i < %[2]s.%[1]s_Count; i++ {
+			if cf.TestBy%[1]s(%[2]s.%[1]s(i)) {
+				fmt.Fprintf(&buf, "%%v ", %[2]s.%[1]s(i))
+			}
+		}
+		fmt.Fprintf(&buf, "]")
+		return buf.String()
+	}
+	
 	func (bt *%[1]sFlag) SetBy%[1]s(n %[2]s.%[1]s) {
 		*bt |= %[1]sFlag(1 << n)
 	}
