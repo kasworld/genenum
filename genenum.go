@@ -143,12 +143,15 @@ func main() {
 	}
 
 	if *g_vectortype != "" {
-		os.MkdirAll(path.Join(*g_basedir, *g_packagename+"_vector"), os.ModePerm)
-		buf, err = buildVectorCode(*g_packagename, *g_typename, *g_vectortype)
-		saveTo(buf, err,
-			path.Join(*g_basedir, *g_packagename+"_vector", *g_packagename+"_vector_gen.go"),
-			*g_verbose,
-		)
+		typeList := strings.Split(*g_vectortype, ",")
+		for _, str := range typeList {
+			os.MkdirAll(path.Join(*g_basedir, *g_packagename+"_vector_"+str), os.ModePerm)
+			buf, err = buildVectorCode(*g_packagename, *g_typename, str)
+			saveTo(buf, err,
+				path.Join(*g_basedir, *g_packagename+"_vector_"+str, *g_packagename+"_vector_gen.go"),
+				*g_verbose,
+			)
+		}
 	}
 }
 
@@ -293,20 +296,20 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 	var buf bytes.Buffer
 	fmt.Fprintln(&buf, makeGenComment())
 	fmt.Fprintf(&buf, `
-	package %[1]s_vector
+	package %[1]s_vector_%[3]s
 	import (
 		"bytes"
 		"fmt"
 		"html/template"
 		"net/http"
 	)
-	`, pkgname, typename)
+	`, pkgname, typename, vectortype)
 
 	fmt.Fprintf(&buf, `
-	type %[2]sVector [%[1]s.%[2]s_Count]%[4]s
-	func (es %[2]sVector) String() string {
+	type %[2]sVector_%[4]s [%[1]s.%[2]s_Count]%[4]s
+	func (es %[2]sVector_%[4]s) String() string {
 		var buf bytes.Buffer
-		fmt.Fprintf(&buf, "%[2]sVector[")
+		fmt.Fprintf(&buf, "%[2]sVector_%[4]s[")
 		for i, v := range es {
 			fmt.Fprintf(&buf,
 				"%%v:%%v ",
@@ -315,27 +318,27 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 		buf.WriteString("]")
 		return buf.String()
 	}
-	func (es *%[2]sVector) Dec(e %[1]s.%[2]s) {
+	func (es *%[2]sVector_%[4]s) Dec(e %[1]s.%[2]s) {
 		es[e]-=1
 	}
-	func (es *%[2]sVector) Inc(e %[1]s.%[2]s) {
+	func (es *%[2]sVector_%[4]s) Inc(e %[1]s.%[2]s) {
 		es[e]+=1
 	}
-	func (es *%[2]sVector) Add(e %[1]s.%[2]s, v %[4]s) {
+	func (es *%[2]sVector_%[4]s) Add(e %[1]s.%[2]s, v %[4]s) {
 		es[e]+=v
 	}
-	func (es *%[2]sVector) SetIfGt(e %[1]s.%[2]s, v %[4]s) {
+	func (es *%[2]sVector_%[4]s) SetIfGt(e %[1]s.%[2]s, v %[4]s) {
 		if es[e] < v {
 			es[e]=v
 		}
 	}
-	func (es %[2]sVector) Get(e %[1]s.%[2]s) %[4]s {
+	func (es %[2]sVector_%[4]s) Get(e %[1]s.%[2]s) %[4]s {
 		return es[e]
 	}
 
 	// Iter return true if iter stop, return false if iter all
 	// fn return true to stop iter
-	func (es %[2]sVector) Iter(fn func(i %[1]s.%[2]s, v %[4]s) bool) bool {
+	func (es %[2]sVector_%[4]s) Iter(fn func(i %[1]s.%[2]s, v %[4]s) bool) bool {
 		for i, v := range es {
 			if fn(%[1]s.%[2]s(i), v) {
 				return true
@@ -345,8 +348,8 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 	}
 
 	// VectorAdd add element to element
-	func (es %[2]sVector) VectorAdd(arg %[2]sVector) %[2]sVector {
-		var rtn %[2]sVector
+	func (es %[2]sVector_%[4]s) VectorAdd(arg %[2]sVector_%[4]s) %[2]sVector_%[4]s {
+		var rtn %[2]sVector_%[4]s
 		for i, v := range es {
 			rtn[i] = v + arg[i]
 		}
@@ -354,8 +357,8 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 	}
 	
 	// VectorSub sub element to element
-	func (es %[2]sVector) VectorSub(arg %[2]sVector) %[2]sVector {
-		var rtn %[2]sVector
+	func (es %[2]sVector_%[4]s) VectorSub(arg %[2]sVector_%[4]s) %[2]sVector_%[4]s {
+		var rtn %[2]sVector_%[4]s
 		for i, v := range es {
 			rtn[i] = v - arg[i]
 		}
@@ -363,11 +366,11 @@ func buildVectorCode(pkgname string, typename string, vectortype string) (*bytes
 	}
 		
 	
-	func (es *%[2]sVector) ToWeb(w http.ResponseWriter, r *http.Request) error {
+	func (es *%[2]sVector_%[4]s) ToWeb(w http.ResponseWriter, r *http.Request) error {
 		tplIndex, err := template.New("index").Funcs(IndexFn).Parse(%[3]c
 		<html>
 		<head>
-		<title>%[2]s statistics</title>
+		<title>%[2]s Vector %[4]s</title>
 		</head>
 		<body>
 		<table border=1 style="border-collapse:collapse;">%[3]c +

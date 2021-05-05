@@ -22,6 +22,9 @@ packagename : 만들어질 패키지이름(==폴더이름) 동시에 읽어 들�
 
 vectortype : 벡터 패키지를 만들때 사용할 element 타입, 없으면 벡터 패키지를 만들지 않는다. 
 
+    , 로 분리된 여러 타입을 지정해 각각의 타입용 vector package를 만들수 있다. 
+    -vectortype="int,float64" 의 형태를 사용.
+
 flagtype : bit flag 패키지를 만들때 사용할 타입 enum 갯수보다 큰 bit len을 가져야 한다. 
 
     uint8, uint16, uint32, uint64 중하나를 추천
